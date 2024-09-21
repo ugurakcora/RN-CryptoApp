@@ -3,8 +3,13 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import styled from "styled-components/native";
 import RootNavigation from "./src/screens/navigation/RootNavigation";
+import useCachedResources from "./hooks/UseCachedResources";
 
 export default function App() {
+  const isLoadingComplete = useCachedResources();
+  if (!isLoadingComplete) {
+    return null;
+  }
   return (
     <Container>
       <StatusBar style="auto" />
