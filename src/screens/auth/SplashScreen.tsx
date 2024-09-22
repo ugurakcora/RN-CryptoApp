@@ -13,9 +13,9 @@ export default function SplashScreen() {
 
   const blurhash = "L5H2EC=PM+yV0g-mq.wG9c010J}I";
   useEffect(() => {
-    // setTimeout(() => {
-    //   navigate("Welcome");
-    // }, 2000);
+    setTimeout(() => {
+      navigate("Welcome");
+    }, 2000);
   }, []);
   return (
     <SafeAreaView className="flex-1 justify-center items-center bg-white">
