@@ -5,6 +5,7 @@ import {
   Dimensions,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -13,6 +14,7 @@ import Breaker from "@/src/components/Breaker";
 import ButtonOutline from "@/src/components/ButtonOutline";
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { supabase } from "@/lib/supabase";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +24,28 @@ export default function RegisterScreen() {
   const [isloading, setIsLoading] = useState(false);
   const { navigate: navigateAuth }: NavigationProp<AuthNavigationType> =
     useNavigation();
+
+  async function signUpWithEmail() {
+    setIsLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (!session) {
+      Alert.alert(
+        "Registered succesfully. Please check your inbox for verification!"
+      );
+    }
+    if (error) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }
   return (
     <View className="flex-1">
       {isloading && (
@@ -90,7 +114,7 @@ export default function RegisterScreen() {
             entering={FadeInDown.duration(100).delay(300).springify()}
           >
             <View className="pb-6">
-              <Button title={"Login"} />
+              <Button title={"Register"} action={() => signUpWithEmail()} />
             </View>
           </Animated.View>
           <View>
