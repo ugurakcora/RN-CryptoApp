@@ -1,4 +1,10 @@
-import { View, Text } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  ActivityIndicator,
+  FlatList,
+} from "react-native";
 import React, { useState, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "@/src/components/Avatar";
@@ -7,6 +13,21 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { useQuery } from "@tanstack/react-query";
+import { FetchAllCoins } from "../../../../utils/cryptoapi";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import numeral from "numeral";
+import { ScrollView } from "react-native-gesture-handler";
+
+interface Coin {
+  uuid: string;
+  name: string;
+  symbol: string;
+  iconUrl: string;
+  price: string;
+  change: number;
+  marketCap: string;
+}
 
 export default function HomeScreen() {
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -14,6 +35,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const { getUserProfile } = useSupabaseAuth();
   const { session } = useUserStore();
+  const blurhash = "L4ADc400L#D%009ZxH9G00x^%1J=";
   async function handleGetProfile() {
     setLoading(true);
     try {
@@ -40,7 +62,66 @@ export default function HomeScreen() {
     }, [session])
   );
 
-  const blurhash = "L4ADc400L#D%009ZxH9G00x^%1J=";
+  const { data: CoinsData, isLoading: IsAllCoinsLoading } = useQuery({
+    queryKey: ["allCoins"],
+    queryFn: FetchAllCoins,
+  });
+
+  const renderItem = ({ item, index }: { item: Coin; index: number }) => {
+    return (
+      <Pressable className="flex-row w-full py-4 items-center">
+        <Animated.View
+          entering={FadeInDown.duration(100)
+            .delay(index * 200)
+            .springify()}
+          className="w-full flex-row items-center"
+        >
+          <View className="w-[16%]">
+            <View className="w-10 h-10 ">
+              <Image
+                source={{ uri: item.iconUrl }}
+                placeholder={blurhash}
+                contentFit="cover"
+                transition={1000}
+                className="w-full h-full flex-1"
+              />
+            </View>
+          </View>
+          <View className="w-[55%] justify-start items-start">
+            <Text className="font-bold text-lg">{item.name}</Text>
+            <View className="flex-row justify-center items-center space-x-2">
+              <Text className="font-medium text-sm text-neutral-500">
+                {numeral(parseFloat(item?.price)).format("$0,0.00")}
+              </Text>
+              <Text
+                className={`font-medium text-sm ${
+                  item.change < 0
+                    ? "text-red-600"
+                    : item.change > 0
+                    ? "text-green-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {item.change}%
+              </Text>
+            </View>
+          </View>
+          <View className="w-[29%] justify-start items-end">
+            <Text className="font-bold text-base">{item.symbol}</Text>
+            <View className="flex-row justify-center items-center space-x-2">
+              <Text className="font-medium text-sm text-neutral-500">
+                {item.marketCap.length > 9
+                  ? item.marketCap.slice(0, 9)
+                  : item.marketCap}
+              </Text>
+            </View>
+          </View>
+        </Animated.View>
+      </Pressable>
+    );
+  };
+
+  console.log({ CoinsData });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -123,6 +204,25 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 100,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          {IsAllCoinsLoading ? (
+            <ActivityIndicator size="large" color="black" />
+          ) : (
+            <FlatList
+              nestedScrollEnabled={true}
+              scrollEnabled={false}
+              data={CoinsData.data.coins}
+              keyExtractor={(item) => item.uuid}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
