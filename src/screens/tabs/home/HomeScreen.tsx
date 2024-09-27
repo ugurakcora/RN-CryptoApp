@@ -9,7 +9,11 @@ import React, { useState, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "@/src/components/Avatar";
 import useSupabaseAuth from "@/hooks/useSupabaseAuth";
-import { useFocusEffect } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  NavigationProp,
+} from "@react-navigation/native";
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -35,6 +39,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const { getUserProfile } = useSupabaseAuth();
   const { session } = useUserStore();
+  const { navigate }: NavigationProp<AuthNavigationType> = useNavigation();
   const blurhash = "L4ADc400L#D%009ZxH9G00x^%1J=";
   async function handleGetProfile() {
     setLoading(true);
@@ -69,7 +74,10 @@ export default function HomeScreen() {
 
   const renderItem = ({ item, index }: { item: Coin; index: number }) => {
     return (
-      <Pressable className="flex-row w-full py-4 items-center">
+      <Pressable
+        className="flex-row w-full py-4 items-center"
+        onPress={() => navigate("CoinDetails", { coinUuid: item.uuid })}
+      >
         <Animated.View
           entering={FadeInDown.duration(100)
             .delay(index * 200)
@@ -210,18 +218,20 @@ export default function HomeScreen() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          {IsAllCoinsLoading ? (
-            <ActivityIndicator size="large" color="black" />
-          ) : (
-            <FlatList
-              nestedScrollEnabled={true}
-              scrollEnabled={false}
-              data={CoinsData.data.coins}
-              keyExtractor={(item) => item.uuid}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
+          <View className="px-4 py-8 items-center">
+            {IsAllCoinsLoading ? (
+              <ActivityIndicator size="large" color="black" />
+            ) : (
+              <FlatList
+                nestedScrollEnabled={true}
+                scrollEnabled={false}
+                data={CoinsData.data.coins}
+                keyExtractor={(item) => item.uuid}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>

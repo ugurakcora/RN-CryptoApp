@@ -32,3 +32,13 @@ const CryptoApiCall = async (endpoints, params = {}) => {
 export const FetchAllCoins = async () => {
   return await CryptoApiCall(coinsUri);
 };
+
+export const FetchCoinDetails = async (coinUuId) => {
+  const coinDetailsUri = `${apiBaseUri}/coin/${coinUuId}?referenceCurrencyUuid=yhjMzLPhuIDl&timePeriod=24h`;
+  return await CryptoApiCall(coinDetailsUri);
+};
+
+export const FetchCoinHistory = async (coinUuId) => {
+  const coinHistoryUri = `${apiBaseUri}/coin/${coinUuId}/history?referenceCurrencyUuid=yhjMzLPhuIDl&timePeriod=24h`;
+  return await CryptoApiCall(coinHistoryUri);
+};
