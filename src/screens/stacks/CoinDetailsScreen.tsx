@@ -34,7 +34,7 @@ export default function CoinDetailsScreen() {
     y: { price: 0 },
   });
 
-  function Tooltip({
+  function ToolTip({
     x,
     y,
   }: {
