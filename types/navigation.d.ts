@@ -14,3 +14,16 @@ type AuthNavigationType = {
 // type TabNavigationType = {
 //   Home: undefined;
 // };
+
+type ScreenNavigationType = {
+  CoinDetails: { coinUuid: string };
+};
+
+type HomeNavigationType = {
+  HomeS: undefined;
+  CoinDetails: undefined;
+};
+
+type SeachNavigationType = {
+  SearchS: undefined;
+};
