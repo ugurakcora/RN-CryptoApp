@@ -3,3 +3,4 @@ export const XRapidAPIKey =
   "f779c6de7fmsh5fd07d6dc5add19p1dde33jsn37996106c64a";
 export const XRapidAPIHost = "coinranking1.p.rapidapi.com";
 export const XRapidAPIHostNews = "cryptocurrency-news2.p.rapidapi.com";
+export const XRapidAPIKeyNews = "f779c6de7fmsh5fd07d6dc5add19p1dde33jsn37996106c64a";
