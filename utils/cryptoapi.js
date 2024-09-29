@@ -44,6 +44,6 @@ export const FetchCoinHistory = async (coinUuId) => {
 };
 
 export const SearchCoin = async (searchQuery) => {
-  const searchUri = `${apiBaseUri}/search-suggestion?referenceCurrencyUuid=yhjMzLPhuIDl&query=${searchQuery}`;
+  const searchUri = `${apiBaseUri}/search-suggestions?query=${searchQuery}&referenceCurrencyUuid=yhjMzLPhuIDl&`;
   return await CryptoApiCall(searchUri);
 };
