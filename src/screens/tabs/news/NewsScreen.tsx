@@ -89,7 +89,7 @@ export default function NewsScreen() {
         </View>
       </View>
       <View>
-        {NewsData && NewsData.data.length > 0 ? (
+        {NewsData && NewsData.data?.length > 0 ? (
           <FlatList
             data={NewsData.data}
             showsVerticalScrollIndicator={false}

@@ -86,11 +86,39 @@ export default function useSupabaseAuth() {
     }
   };
 
+  async function updateUserProfile(
+    username: string,
+    fullName: string,
+    avatarUrl: string
+  ) {
+    if (!session?.user) throw new Error("No user on the session!");
+
+    const update = {
+      id: session?.user.id,
+      username,
+      full_name: fullName,
+      avatar_url: avatarUrl,
+      updated_at: new Date(),
+    };
+
+    try {
+      const { data, error } = await supabase.from("profiles").upsert(update);
+
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return { data: null, error };
+    }
+  }
+
   return {
     signInWithEmail,
     signUpWithEmail,
     signOut,
     getUserProfile,
     updateProfileImage,
+    updateUserProfile,
   };
 }

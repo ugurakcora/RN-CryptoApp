@@ -10,11 +10,12 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons";
+import defaultAvatar from "@/assets/images/avatar.png";
 
 interface Props {
-  size: number;
-  url: string | null;
-  onUpload: (filePath: string) => void;
+  size?: number;
+  url?: string | null;
+  onUpload?: (filePath: string) => void;
   showUpload?: boolean;
 }
 
@@ -35,11 +36,10 @@ export default function Avatar({
   async function downloadImage(path: string) {
     try {
       const { data, error } = await supabase.storage
-        .from("avatars")
-        .download(path);
+        .from("profiles")
+        .download(defaultAvatar);
       if (error) {
         throw error;
-        console.log(error);
       }
       const fr = new FileReader();
       fr.readAsDataURL(data);
@@ -52,7 +52,55 @@ export default function Avatar({
       }
     }
   }
-  async function uploadAvatar() {}
+  async function uploadAvatar() {
+    try {
+      setUploading(true);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        allowsEditing: true,
+        quality: 1,
+        exif: false,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        console.log("User cancelled image picker");
+        return;
+      }
+
+      const image = result.assets[0];
+      console.log("Got image", image);
+
+      if (!image.uri) {
+        throw new Error("No image uri found");
+      }
+
+      const arraybuffer = await fetch(image.uri).then((res) =>
+        res.arrayBuffer()
+      );
+      const fileExt = image.uri?.split(".").pop()?.toLowerCase() ?? "jpeg";
+      const path = `${Date.now()}.${fileExt}`;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, arraybuffer, {
+          contentType: image.mimeType ?? "image/jpeg",
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      if (onUpload) {
+        onUpload(data.path);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <View>
       {avatarUrl ? (
@@ -75,7 +123,7 @@ export default function Avatar({
       {showUpload && (
         <View className="absolute right-0 bottom-0">
           {!uploading ? (
-            <Pressable>
+            <Pressable onPress={uploadAvatar}>
               <MaterialIcons name="cloud-upload" size={30} color="black" />
             </Pressable>
           ) : (
